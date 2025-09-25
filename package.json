@@ -1,0 +1,11 @@
+{
+  "name": "telegram-auto-bot",
+  "version": "1.0.0",
+  "description": "Smart Telegram Auto-Responder",
+  "scripts": {
+    "start": "python main.py"
+  },
+  "keywords": ["telegram", "bot", "auto-responder"],
+  "author": "You",
+  "license": "MIT"
+}
