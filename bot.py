@@ -2,23 +2,21 @@ from telethon import TelegramClient, events
 import time
 import asyncio
 
-# ===== CONFIG =====
+# ====== CONFIG ======
+COOLDOWN_SECONDS = 3600  # 1 hour cooldown
 AUTO_REPLY_TEXT = "Owner is off right now. I'll let them know you messaged."
-COOLDOWN_SECONDS = 1  # 1 hour cooldown per user
-# ==================
+# ====================
 
-running_clients = {}  # session_name -> client
-last_replied_dict = {}  # session_name -> {user_id -> timestamp}
+last_replied = {}  # user_id -> last reply timestamp
+clients = {}       # store running clients if needed to stop later
 
 
-async def auto_reply_bot(api_id, api_hash, session_name, phone_number):
+async def start_auto_reply(api_id, api_hash, session_name, phone_number):
     client = TelegramClient(session_name, api_id, api_hash)
-    last_replied = {}
-    last_replied_dict[session_name] = last_replied
 
     @client.on(events.NewMessage(incoming=True))
     async def handler(event):
-        if not event.is_private:
+        if not event.is_private:  # Only reply in PMs
             return
 
         sender = await event.get_sender()
@@ -28,93 +26,60 @@ async def auto_reply_bot(api_id, api_hash, session_name, phone_number):
         user_id = sender.id
         me = await client.get_me()
         if user_id == me.id:
-            return
+            return  # ignore self
 
         now = time.time()
         last = last_replied.get(user_id, 0)
-
         if now - last < COOLDOWN_SECONDS:
-            return
+            return  # cooldown
 
         await event.reply(AUTO_REPLY_TEXT)
         last_replied[user_id] = now
-        print(f"[{time.strftime('%H:%M:%S')}] [{session_name}] Auto-replied to {sender.first_name} ({user_id})")
+
+        print(f"[{time.strftime('%H:%M:%S')}] Auto-replied to {sender.first_name} ({user_id})")
 
     await client.start(phone=phone_number)
     me = await client.get_me()
-    print(f"✅ [{session_name}] Logged in as: {me.first_name} ({me.id})")
-    print(f"🤖 [{session_name}] Auto-reply is running...")
+    print(f"\n✅ Logged in as: {me.first_name} ({me.id})")
+    print("🤖 Auto-reply is running... Press Ctrl+C to stop\n")
 
-    running_clients[session_name] = client
-    try:
-        await client.run_until_disconnected()
-    finally:
-        running_clients.pop(session_name, None)
-        last_replied_dict.pop(session_name, None)
+    clients[session_name] = client
+    await client.run_until_disconnected()
 
 
 def main_menu():
-    print("\n=== TELEGRAM AUTO-REPLY BOT MENU ===")
-    print("1. Run a new Auto-Reply Bot")
-    print("2. Show Running Sessions")
-    print("3. Stop a Session")
-    print("4. Exit")
-    choice = input("Choose an option: ").strip()
-    return choice
-
-
-async def run():
     while True:
-        choice = main_menu()
+        print("\n=== TELEGRAM AUTO-REPLY BOT ===")
+        print("1. Start Auto-reply Bot")
+        print("2. Stop Auto-reply Bot")
+        print("3. Exit")
+        choice = input("Select option: ").strip()
 
         if choice == "1":
-            # Input details for a new session
             api_id = int(input("Enter API ID: ").strip())
-            api_hash = input("Enter API Hash: ").strip()
-            session_name = input("Enter Session Name (file will be created): ").strip()
-            phone_number = input("Enter your Phone Number (with country code): ").strip()
+            api_hash = input("Enter API HASH: ").strip()
+            session_name = input("Enter session name: ").strip()
+            phone_number = input("Enter your phone number (with country code): ").strip()
+            print("\nStarting bot...\n")
 
-            # Start bot in background
-            asyncio.create_task(auto_reply_bot(api_id, api_hash, session_name, phone_number))
-            print(f"✅ [{session_name}] Bot is starting in background...\n")
+            asyncio.run(start_auto_reply(api_id, api_hash, session_name, phone_number))
+            print("\nReturning to main menu...\n")
 
         elif choice == "2":
-            # Show running sessions
-            if running_clients:
-                print("🔹 Running Sessions:")
-                for s in running_clients:
-                    print(f" - {s}")
+            if not clients:
+                print("No running bot found.")
             else:
-                print("No sessions running currently.")
+                for name, client in clients.items():
+                    asyncio.run(client.disconnect())
+                    print(f"Bot '{name}' stopped.")
+                clients.clear()
 
         elif choice == "3":
-            # Stop a specific session
-            if running_clients:
-                print("Select a session to stop:")
-                for idx, s in enumerate(running_clients, start=1):
-                    print(f"{idx}. {s}")
-                sel = input("Enter number: ").strip()
-                try:
-                    sel_idx = int(sel) - 1
-                    session_to_stop = list(running_clients.keys())[sel_idx]
-                    client_to_stop = running_clients[session_to_stop]
-                    await client_to_stop.disconnect()
-                    print(f"✅ Session '{session_to_stop}' stopped.")
-                except (ValueError, IndexError):
-                    print("Invalid selection!")
-            else:
-                print("No sessions running to stop.")
-
-        elif choice == "4":
-            # Exit all sessions
-            print("Stopping all sessions and exiting...")
-            for client in list(running_clients.values()):
-                await client.disconnect()
+            print("Exiting...")
             break
-
         else:
-            print("Invalid option! Try again.")
+            print("Invalid option. Try again.")
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    main_menu()
