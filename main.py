@@ -5,8 +5,8 @@ import time
 API_ID = 22084373
 API_HASH = "10d07f2b0a375075edef29f0a700a538"
 SESSION_NAME = "owner_auto_reply"  # session file name (banega same folder me)
-AUTO_REPLY_TEXT = "Owner is off right now. I'll let them know you messaged."
-COOLDOWN_SECONDS = 3600  # 1 ghante me ek hi reply per user
+AUTO_REPLY_TEXT = "𝘾𝙐𝙍𝙍𝙀𝙉𝙏𝙇𝙔 𝙊𝙁𝙁𝙇𝙄𝙉𝙀!🔕  𝙋𝙇𝙀𝘼𝙎𝙀 𝘿𝙍𝙊𝙋 𝙔𝙊𝙐𝙍 𝙈𝙀𝙎𝙎𝘼𝙂𝙀, 𝙒𝙄𝙇𝙇 𝙍𝙀𝙎𝙋𝙊𝙉𝘿 𝙏𝙊 𝙔𝙊𝙐 𝙇𝘼𝙏𝙀𝙍!💋"
+COOLDOWN_SECONDS = 1  # 1 ghante me ek hi reply per user
 # ====================
 
 client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
