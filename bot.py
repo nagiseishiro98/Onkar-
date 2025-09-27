@@ -3,8 +3,8 @@ import time
 import asyncio
 
 # ====== CONFIG ======
-COOLDOWN_SECONDS = 3600  # 1 hour cooldown
-AUTO_REPLY_TEXT = "Owner is off right now. I'll let them know you messaged."
+COOLDOWN_SECONDS = 1  # 1 hour cooldown
+AUTO_REPLY_TEXT = "𝘾𝙐𝙍𝙍𝙀𝙉𝙏𝙇𝙔 𝙊𝙁𝙁𝙇𝙄𝙉𝙀!🔕  𝙋𝙇𝙀𝘼𝙎𝙀 𝘿𝙍𝙊𝙋 𝙔𝙊𝙐𝙍 𝙈𝙀𝙎𝙎𝘼𝙂𝙀, 𝙒𝙄𝙇𝙇 𝙍𝙀𝙎𝙋𝙊𝙉𝘿 𝙏𝙊 𝙔𝙊𝙐 𝙇𝘼𝙏𝙀𝙍!💋"
 # ====================
 
 last_replied = {}  # user_id -> last reply timestamp
