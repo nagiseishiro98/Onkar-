@@ -4,7 +4,7 @@ import asyncio
 
 # ===== CONFIG =====
 AUTO_REPLY_TEXT = "Owner is off right now. I'll let them know you messaged."
-COOLDOWN_SECONDS = 3600  # 1 hour cooldown per user
+COOLDOWN_SECONDS = 1  # 1 hour cooldown per user
 # ==================
 
 running_clients = {}  # session_name -> client
